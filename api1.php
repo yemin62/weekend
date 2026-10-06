@@ -1,15 +1,20 @@
 <?php
 
-$zipcode = filter_input(INPUT_GET,"zipcode");
+//① GET から郵便番号を受け取る
+$zipcode = filter_input(INPUT_GET, "zipcode");
 
-$url = "https://zipcloud.ibsnet.co.jp/api/search?zipcode=". $zipcode;
+//② API URL を作る
+$url = "https://zipcloud.ibsnet.co.jp/api/search?zipcode=" . $zipcode;
 
+//④ json_decode() で配列にする
 $json = file_get_contents($url);
 
+//⑤ results があるか確認
 $response = json_decode($json, true);
 
 $address = "";
 $message = "";
+//⑥ address1 + address2 + address3⑦ なければ message を表示
 
 if($response["results"]){
   $address1 = $response["results"][0]["address1"];
