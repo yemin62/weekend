@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button onclick="randomSentence()">Random</button>
+    <p id="result"></p>
+
+    <script>
+        const sentences = [
+            "今日は早く寝る",
+            "夜後はい外食する",
+            "ゲームする",
+            "勉強する",
+            
+        ];
+        function randomSentence(){
+            const number = Math.floor(Math.random() * sentences.length );
+            document.getElementById("result").textContent = sentences[number];
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Daily Check</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .day {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        input {
+            width: 80px;
+            padding: 8px;
+            margin: 5px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        #comparison {
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Daily Check</h1>
+
+<div class="day">
+
+    <h2>昨日</h2>
+
+    <label>
+        勉強：
+        <input type="number" id="yesterdayStudy" min="0" step="0.5">
+        時間
+    </label>
+
+    <br>
+
+    <label>
+        運動：
+        <input type="number" id="yesterdayExercise" min="0" step="0.5">
+        時間
+    </label>
+
+</div>
+
+
+<div class="day">
+
+    <h2>今日</h2>
+
+    <label>
+        勉強：
+        <input type="number" id="todayStudy" min="0" step="0.5">
+        時間
+    </label>
+
+    <br>
+
+    <label>
+        運動：
+        <input type="number" id="todayExercise" min="0" step="0.5">
+        時間
+    </label>
+
+</div>
+
+
+<button id="checkButton">結果を見る</button>
+
+
+<div id="result">
+    ここに結果が表示されます
+</div>
+
+<div id="comparison"></div>
+
+
+<script>
+
+    // =====================================
+    // メッセージ
+    // =====================================
+
+    // ① 勉強も運動もした場合
+    const bothMessages = [
+        "今日も勉強と運動、両方できて素晴らしいです！",
+        "勉強も運動も頑張りましたね！",
+        "今日もしっかり行動できています。よく頑張りました！",
+        "勉強と運動の両方ができていて素晴らしいです！",
+        "今日の努力はとても良いですね！",
+        "勉強も運動もできました。バランスがとても良いです！",
+        "今日も一歩ずつ前に進めています！",
+        "勉強と運動、どちらも頑張った自分を褒めましょう！",
+        "今日の過ごし方はとても良いですね！",
+        "よく頑張りました！明日もこの調子でいきましょう！"
+    ];
+
+
+    // ② 勉強したけど運動していない場合
+    const studyOnlyMessages = [
+        "勉強はできましたね！次は少し運動もしてみましょう！",
+        "勉強お疲れさまでした。明日は運動も頑張ってみましょう！",
+        "勉強はしっかりできています。少し体を動かす時間も作りましょう！",
+        "今日は勉強できました。次は運動にもチャレンジしましょう！",
+        "勉強を頑張れたのは素晴らしいです。少し散歩してみるのもいいですね！",
+        "勉強はできましたね。明日は運動も少し取り入れてみましょう！",
+        "頭を使った後は体も動かしてみましょう！",
+        "勉強の努力は素晴らしいです。次は健康のために運動も頑張りましょう！",
+        "今日は勉強の日でしたね。明日は少し体を動かしてみましょう！",
+        "よく勉強できました！次は運動も少し頑張ってみましょう！"
+    ];
+
+
+    // ③ 運動したけど勉強していない場合
+    const exerciseOnlyMessages = [
+        "運動はできましたね！次は少し勉強も頑張りましょう！",
+        "今日は体を動かせましたね。明日は勉強もしてみましょう！",
+        "運動お疲れさまでした！次は勉強にもチャレンジしましょう！",
+        "体を動かせたのは素晴らしいです。少し勉強する時間も作りましょう！",
+        "今日は運動できましたね！明日は勉強も頑張ってみましょう！",
+        "健康のために運動できましたね。次は勉強も少しずつ進めましょう！",
+        "運動の習慣はとても良いですね。勉強も少し頑張ってみましょう！",
+        "今日は運動を頑張りました。明日は勉強にも挑戦しましょう！",
+        "体を動かせたことは素晴らしいです。次は勉強の時間も作りましょう！",
+        "運動できましたね！小さな時間でもいいので勉強してみましょう！"
+    ];
+
+
+    // ④ 勉強も運動もしていない場合
+    const neitherMessages = [
+        "今日はまだ勉強も運動もできていません。少しずつ始めてみましょう！",
+        "まずは10分だけでも勉強か運動を始めてみましょう！",
+        "今日はできなかったとしても大丈夫です。明日から少しずつ頑張りましょう！",
+        "小さな一歩から始めましょう。まずは少し勉強してみませんか？",
+        "今日は休んだ日ですね。明日は少しだけでも行動してみましょう！",
+        "完璧じゃなくても大丈夫です。明日は一つだけ頑張ってみましょう！",
+        "少しの努力でも積み重ねれば大きな結果になります。明日から頑張りましょう！",
+        "今日はゆっくりした日ですね。明日は勉強か運動を始めてみましょう！",
+        "まずは5分からでも大丈夫です。小さく始めてみましょう！",
+        "明日は今日より少しだけ頑張ってみましょう！"
+    ];
+
+
+    // =====================================
+    // Random用
+    // =====================================
+
+    let bothUsed = [];
+    let studyOnlyUsed = [];
+    let exerciseOnlyUsed = [];
+    let neitherUsed = [];
+
+
+    function getRandomMessage(messages, usedMessages) {
+
+        // 全部の文を使ったらリセット
+        if (usedMessages.length === messages.length) {
+            usedMessages.length = 0;
+        }
+
+        let availableMessages = messages.filter(function(message) {
+            return !usedMessages.includes(message);
+        });
+
+        const number = Math.floor(Math.random() * availableMessages.length);
+
+        const selectedMessage = availableMessages[number];
+
+        usedMessages.push(selectedMessage);
+
+        return selectedMessage;
+    }
+
+
+    // =====================================
+    // 結果を見る
+    // =====================================
+
+    document.getElementById("checkButton").addEventListener("click", function() {
+
+        // 昨日
+        const yesterdayStudy =
+            Number(document.getElementById("yesterdayStudy").value) || 0;
+
+        const yesterdayExercise =
+            Number(document.getElementById("yesterdayExercise").value) || 0;
+
+
+        // 今日
+        const todayStudy =
+            Number(document.getElementById("todayStudy").value) || 0;
+
+        const todayExercise =
+            Number(document.getElementById("todayExercise").value) || 0;
+
+
+        let message;
+
+
+        // =====================================
+        // 今日の状態を判定
+        // =====================================
+
+        if (todayStudy > 0 && todayExercise > 0) {
+
+            message = getRandomMessage(
+                bothMessages,
+                bothUsed
+            );
+
+        }
+        else if (todayStudy > 0 && todayExercise === 0) {
+
+            message = getRandomMessage(
+                studyOnlyMessages,
+                studyOnlyUsed
+            );
+
+        }
+        else if (todayStudy === 0 && todayExercise > 0) {
+
+            message = getRandomMessage(
+                exerciseOnlyMessages,
+                exerciseOnlyUsed
+            );
+
+        }
+        else {
+
+            message = getRandomMessage(
+                neitherMessages,
+                neitherUsed
+            );
+        }
+
+
+        // 結果を表示
+        document.getElementById("result").textContent = message;
+
+
+        // =====================================
+        // 昨日との比較
+        // =====================================
+
+        let comparison = "";
+
+
+        if (todayStudy > yesterdayStudy) {
+
+            comparison += "📚 昨日より勉強時間が増えました！<br>";
+
+        }
+        else if (todayStudy < yesterdayStudy) {
+
+            comparison += "📚 昨日より勉強時間が少なくなりました。<br>";
+
+        }
+        else {
+
+            comparison += "📚 昨日と勉強時間は同じです。<br>";
+
+        }
+
+
+        if (todayExercise > yesterdayExercise) {
+
+            comparison += "🏃 昨日より運動時間が増えました！";
+
+        }
+        else if (todayExercise < yesterdayExercise) {
+
+            comparison += "🏃 昨日より運動時間が少なくなりました。";
+
+        }
+        else {
+
+            comparison += "🏃 昨日と運動時間は同じです。";
+
+        }
+
+
+        document.getElementById("comparison").innerHTML = comparison;
+
+    });
+
+</script>
+
+</body>
+</html>
